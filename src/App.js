@@ -2,6 +2,7 @@
 import { jsx } from "@emotion/core";
 /* eslint-disable no-unused-vars */
 import { Fragment, useContext, useState } from "react";
+import { solve } from "./solve";
 /* eslint-enable no-unused-vars */
 
 const CELL_SIZE = 50;
@@ -12,23 +13,26 @@ const CELL_DIVIDER_COLOR = "grey";
 function App() {
   const [gameState, setGameState] = useState([...Array(81)]);
   return (
-    <div
-      css={{
-        width: BOARD_SIZE,
-        height: BOARD_SIZE,
-        display: "flex",
-        flexWrap: "wrap"
-      }}
-    >
-      {[...Array(81)].map((_, index) => (
-        <Cell
-          key={index}
-          index={index}
-          gameState={gameState}
-          setGameState={setGameState}
-        />
-      ))}
-    </div>
+    <Fragment>
+      <div
+        css={{
+          width: BOARD_SIZE,
+          height: BOARD_SIZE,
+          display: "flex",
+          flexWrap: "wrap"
+        }}
+      >
+        {[...Array(81)].map((_, index) => (
+          <Cell
+            key={index}
+            index={index}
+            gameState={gameState}
+            setGameState={setGameState}
+          />
+        ))}
+      </div>
+      <button onClick={() => setGameState(solve(gameState))}>Solve</button>
+    </Fragment>
   );
 }
 
@@ -62,7 +66,7 @@ function Cell({ index, gameState, setGameState }) {
         setGameState(newState);
       }}
     >
-      {determinePosition(index).group}
+      {gameState[index]}
     </div>
   );
 }
