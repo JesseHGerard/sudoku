@@ -1,4 +1,5 @@
 export function solve(puzzle) {
+  const start = Date.now();
   const state = puzzle.map((value, index) => {
     return {
       value,
@@ -12,41 +13,56 @@ export function solve(puzzle) {
   let current = 0;
   let loops = 0;
 
-  while (current < state.length) {
-    loops++;
-    console.log(`CURRENT: ${current}, value: ${state[current].value}`);
-    if (!state[current].value) {
-      const newOptions = generateOptions(current, state);
-      if (newOptions.length > 0) {
-        state[current].value = newOptions.shift();
-        state[current].options = newOptions;
-        console.log(`  generated new options`);
-        console.log(`  new value ${state[current].value}`);
+  try {
+    while (current < state.length) {
+      loops++;
+      // console.log(`CURRENT: ${current}, value: ${state[current].value}`);
+
+      if (isConstant(state[current])) {
         current++;
         continue;
-      } else {
-        let next = current - 1;
-        while (!hasOptions(state[next])) {
-          if (next < 0) {
-            throw Error("REACHED BEGINNING");
-          } else {
-            state[next].value = undefined;
-            console.log(`  reset ${next}`);
-            next--;
+      }
+
+      if (!state[current].value) {
+        const newOptions = generateOptions(current, state);
+        if (newOptions.length > 0) {
+          state[current].value = newOptions.shift();
+          state[current].options = newOptions;
+          // console.log(`  generated new options`);
+          // console.log(`  new value ${state[current].value}`);
+          current++;
+          continue;
+        } else {
+          let next = current - 1;
+          while (!hasOptions(state[next])) {
+            while (isConstant(state[next])) {
+              next--;
+            }
+            if (next < 0) {
+              throw Error("REACHED BEGINNING (options loop)");
+            } else {
+              state[next].value = undefined;
+              // console.log(`  reset ${next}`);
+              next--;
+            }
           }
+          // console.log(`  stepped back to ${next}`);
+          state[next].value = state[next].options.shift();
+          current = next + 1;
+          continue;
         }
-        console.log(`  stepped back to ${next}`);
-        state[next].value = state[next].options.shift();
-        current = next + 1;
-        continue;
       }
     }
+  } catch (error) {
+    console.warn("Puzzle is not solvable");
+    console.warn(error);
   }
   console.log(
     `FINISHED in ${loops} loops`,
     state.length,
     state.map(({ value }) => value).join(", ")
   );
+  console.log("Time", (Date.now() - start) / 1000);
   return state.map(({ value }) => value);
 }
 
@@ -60,7 +76,14 @@ function generateOptions(index, state) {
   return options;
 }
 
+function isConstant(cell) {
+  return !!cell.constant;
+}
+
 function hasOptions(cell) {
+  if (cell === undefined) {
+    throw Error(`Puzzle is not solvable`);
+  }
   return Array.isArray(cell.options) && cell.options.length > 0;
 }
 
