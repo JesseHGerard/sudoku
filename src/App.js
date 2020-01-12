@@ -1,17 +1,24 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core";
 /* eslint-disable no-unused-vars */
-import { Fragment, useContext, useState } from "react";
-import { solve } from "./solve";
+import { Fragment, useContext, useState, useEffect } from "react";
+import { solve } from "./util/solve";
+import { challenge } from "./util/challenge";
 /* eslint-enable no-unused-vars */
 
 const CELL_SIZE = 50;
 const BOARD_SIZE = CELL_SIZE * 9;
 const GROUP_DIVIDER_COLOR = "black";
 const CELL_DIVIDER_COLOR = "grey";
+const PICKER_BACKGROUND_COLOR = "black";
+const PICKER_FOREGROUND_COLOR = "white";
+
+const badPuzzle = " , , , , , 9, , , , , 8, 1, , , , , 6, 9, , , 9, , , , 5, 1, 4, 8, 1, , , 6, , , , , , , , 8, , 2, , 5, , 7, , , 9, , , , , , , , , , , , 3, , 7, , , , , 8, , , 4, , 3, 4, , , , , , , 8"
+  .split(", ")
+  .map(item => parseInt(item) || undefined);
 
 function App() {
-  const [gameState, setGameState] = useState([...Array(81)]);
+  const [gameState, setGameState] = useState(badPuzzle /* [...Array(81)] */);
   return (
     <Fragment>
       <div
@@ -19,7 +26,8 @@ function App() {
           width: BOARD_SIZE,
           height: BOARD_SIZE,
           display: "flex",
-          flexWrap: "wrap"
+          flexWrap: "wrap",
+          padding: CELL_SIZE
         }}
       >
         {[...Array(81)].map((_, index) => (
@@ -39,9 +47,12 @@ function App() {
 export default App;
 
 function Cell({ index, gameState, setGameState }) {
+  const [showPicker, setShowPicker] = useState(false);
+
   return (
     <div
       css={{
+        position: "relative",
         boxSizing: "border-box",
         height: CELL_SIZE,
         width: CELL_SIZE,
@@ -54,19 +65,91 @@ function Cell({ index, gameState, setGameState }) {
         ...borderStyle(index)
       }}
       tabIndex={0}
-      onClick={() => {
-        const newState = [...gameState];
-        if (!newState[index]) {
-          newState[index] = 1;
-        } else if (newState[index] >= 9) {
-          newState[index] = undefined;
-        } else {
-          newState[index]++;
-        }
-        setGameState(newState);
-      }}
+      onClick={() => setShowPicker(true)}
     >
       {gameState[index]}
+      {showPicker && (
+        <Picker
+          gameState={gameState}
+          setGameState={setGameState}
+          index={index}
+          setShowPicker={setShowPicker}
+        />
+      )}
+    </div>
+  );
+}
+
+function Picker({ gameState, setGameState, setShowPicker, index }) {
+  const [availableNumbers, setAvailableNumbers] = useState([]);
+
+  useEffect(() => {
+    const formattedState = gameState.map((value, index) => {
+      return {
+        value,
+        constant: !!value,
+        index,
+        ...determinePosition(index)
+      };
+    });
+
+    const nextAvailableNumbers = [];
+    for (let i = 1; i <= 9; i++) {
+      if (challenge(index, i, formattedState)) {
+        nextAvailableNumbers.push(i);
+      }
+    }
+    console.log("AVAILABLE NUMBERS", nextAvailableNumbers);
+    setAvailableNumbers(nextAvailableNumbers);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <div
+      css={{
+        boxSizing: "border-box",
+        height: 3 * CELL_SIZE,
+        width: 3 * CELL_SIZE,
+        backgroundColor: PICKER_BACKGROUND_COLOR,
+        color: PICKER_FOREGROUND_COLOR,
+        position: "absolute",
+        top: "50%",
+        left: "50%",
+        transform: "translate(-50%, -50%)",
+        zIndex: 1,
+        display: "flex",
+        flexWrap: "wrap"
+      }}
+    >
+      {[...Array(9)].map((_, numberIndex) => {
+        const currentNumber = numberIndex + 1;
+        const isAvailableNumber = availableNumbers.includes(numberIndex + 1);
+        return (
+          <div
+            key={numberIndex}
+            css={{
+              width: CELL_SIZE,
+              height: CELL_SIZE,
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+            onClick={
+              isAvailableNumber
+                ? event => {
+                    event.stopPropagation();
+                    const nextGameState = [...gameState];
+                    nextGameState[index] = currentNumber;
+                    setGameState(nextGameState);
+                    setShowPicker(false);
+                  }
+                : undefined
+            }
+          >
+            {isAvailableNumber && currentNumber}
+          </div>
+        );
+      })}
     </div>
   );
 }

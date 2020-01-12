@@ -1,3 +1,6 @@
+import { determinePosition } from "./determinePosition";
+import { challenge } from "./challenge";
+
 export function solve(puzzle) {
   const start = Date.now();
   const state = puzzle.map((value, index) => {
@@ -8,7 +11,7 @@ export function solve(puzzle) {
       ...determinePosition(index)
     };
   });
-  console.log(state);
+  // console.log(state);
 
   let current = 0;
   let loops = 0;
@@ -38,19 +41,19 @@ export function solve(puzzle) {
             while (isConstant(state[next])) {
               next--;
             }
-            if (next < 0) {
-              throw Error("REACHED BEGINNING (options loop)");
-            } else {
-              state[next].value = undefined;
-              // console.log(`  reset ${next}`);
-              next--;
-            }
+
+            state[next].value = undefined;
+            state[next].options = undefined;
+            // console.log(`  reset ${next}`);
+            next--;
           }
           // console.log(`  stepped back to ${next}`);
           state[next].value = state[next].options.shift();
           current = next + 1;
           continue;
         }
+      } else {
+        console.log("NO VALUE && NOT CONSTANT", current);
       }
     }
   } catch (error) {
@@ -82,63 +85,9 @@ function isConstant(cell) {
 
 function hasOptions(cell) {
   if (cell === undefined) {
-    throw Error(`Puzzle is not solvable`);
+    // throw Error(`Puzzle is not solvable`);
+    console.log("PREVIOUSLY NOT SOLVABLE");
+    return true;
   }
   return Array.isArray(cell.options) && cell.options.length > 0;
-}
-
-function challenge(index, value, state) {
-  const cell = state[index];
-  let passedRow = !cell.rowMembers
-    .map(rowMemberIndex => state[rowMemberIndex].value)
-    .includes(value);
-  let passedCol =
-    passedRow &&
-    !cell.colMembers
-      .map(colMemberIndex => state[colMemberIndex].value)
-      .includes(value);
-  let passedGroup =
-    passedRow &&
-    passedCol &&
-    !cell.groupMembers
-      .map(groupMemberIndex => state[groupMemberIndex].value)
-      .includes(value);
-  return passedRow && passedCol && passedGroup;
-}
-
-function determinePosition(index) {
-  const col = determineCol(index);
-  const row = determineRow(index);
-  const group = determineGroup(index);
-
-  const range = [...Array(81)].map((_, nextRowIndex) => nextRowIndex);
-
-  return {
-    group,
-    col,
-    row,
-    colMembers: range.filter(
-      (_, colIndex) => colIndex !== index && determineCol(colIndex) === col
-    ),
-    rowMembers: range.filter(
-      (_, rowIndex) => rowIndex !== index && determineRow(rowIndex) === row
-    ),
-    groupMembers: range.filter(
-      (_, groupIndex) =>
-        groupIndex !== index && determineGroup(groupIndex) === group
-    )
-  };
-}
-
-function determineCol(index) {
-  return index % 9;
-}
-function determineRow(index) {
-  return Math.floor(index / 9);
-}
-function determineGroup(index) {
-  return (
-    Math.floor(determineCol(index) / 3) +
-    Math.floor(determineRow(index) / 3) * 3
-  );
 }
