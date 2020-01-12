@@ -19,10 +19,11 @@ export function solve(puzzle) {
   try {
     while (current < state.length) {
       loops++;
-      // console.log(`CURRENT: ${current}, value: ${state[current].value}`);
+      console.log(`CURRENT: ${current}, value: ${state[current].value}`);
 
       if (isConstant(state[current])) {
         current++;
+        console.log("  is constant");
         continue;
       }
 
@@ -31,11 +32,12 @@ export function solve(puzzle) {
         if (newOptions.length > 0) {
           state[current].value = newOptions.shift();
           state[current].options = newOptions;
-          // console.log(`  generated new options`);
-          // console.log(`  new value ${state[current].value}`);
+          console.log(`  generated new options`);
+          console.log(`  new value ${state[current].value}`);
           current++;
           continue;
         } else {
+          console.log("  no options generated");
           let next = current - 1;
           while (!hasOptions(state[next])) {
             while (isConstant(state[next])) {
@@ -44,17 +46,17 @@ export function solve(puzzle) {
 
             state[next].value = undefined;
             state[next].options = undefined;
-            // console.log(`  reset ${next}`);
+            console.log(`  reset ${next}`);
             next--;
           }
-          // console.log(`  stepped back to ${next}`);
-          state[next].value = state[next].options.shift();
+          const nextValue = state[next].options.shift();
+          console.log(`  stepped back to ${next} with value ${nextValue}`);
+          state[next].value = nextValue;
           current = next + 1;
           continue;
         }
-      } else {
-        console.log("NO VALUE && NOT CONSTANT", current);
       }
+      console.log("BAD EXIT", current);
     }
   } catch (error) {
     console.warn("Puzzle is not solvable");
@@ -85,9 +87,7 @@ function isConstant(cell) {
 
 function hasOptions(cell) {
   if (cell === undefined) {
-    // throw Error(`Puzzle is not solvable`);
-    console.log("PREVIOUSLY NOT SOLVABLE");
-    return true;
+    throw Error(`Puzzle is not solvable`);
   }
   return Array.isArray(cell.options) && cell.options.length > 0;
 }

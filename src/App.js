@@ -13,12 +13,12 @@ const CELL_DIVIDER_COLOR = "grey";
 const PICKER_BACKGROUND_COLOR = "black";
 const PICKER_FOREGROUND_COLOR = "white";
 
-const badPuzzle = " , , , , , 9, , , , , 8, 1, , , , , 6, 9, , , 9, , , , 5, 1, 4, 8, 1, , , 6, , , , , , , , 8, , 2, , 5, , 7, , , 9, , , , , , , , , , , , 3, , 7, , , , , 8, , , 4, , 3, 4, , , , , , , 8"
+const badPuzzle = "8, , , 9, 3, , , , 2, , , 9, , , , , 4, , 7, , 2, 1, , , 9, 6, , 2, , , , , , , 9, , , 6, , , , , , 7, , , 7, , , , 6, , , 5, , 2, 7, , , 8, 4, , 6, , 3, , , , , 5, , , 5, , , , 6, 2, , , 8"
   .split(", ")
-  .map(item => parseInt(item) || undefined);
+  .map(item => parseInt(item) || undefined) || [...Array(81)];
 
 function App() {
-  const [gameState, setGameState] = useState(badPuzzle /* [...Array(81)] */);
+  const [gameState, setGameState] = useState(badPuzzle);
   return (
     <Fragment>
       <div
@@ -27,7 +27,8 @@ function App() {
           height: BOARD_SIZE,
           display: "flex",
           flexWrap: "wrap",
-          padding: CELL_SIZE
+          padding: CELL_SIZE,
+          userSelect: "none"
         }}
       >
         {[...Array(81)].map((_, index) => (
@@ -62,6 +63,7 @@ function Cell({ index, gameState, setGameState }) {
         fontFamily: '"Helvetica", san-serif',
         borderWidth: 0,
         borderStyle: "solid",
+        outline: "none",
         ...borderStyle(index)
       }}
       tabIndex={0}
@@ -122,20 +124,34 @@ function Picker({ gameState, setGameState, setShowPicker, index }) {
       }}
     >
       {[...Array(9)].map((_, numberIndex) => {
+        const currentValue = gameState[index];
         const currentNumber = numberIndex + 1;
         const isAvailableNumber = availableNumbers.includes(numberIndex + 1);
         return (
           <div
             key={numberIndex}
             css={{
+              boxSizing: "border-box",
               width: CELL_SIZE,
               height: CELL_SIZE,
               display: "flex",
               justifyContent: "center",
-              alignItems: "center"
+              alignItems: "center",
+              borderRadius: "100%",
+              borderColor: PICKER_FOREGROUND_COLOR,
+              borderStyle: "solid",
+              borderWidth: currentValue === currentNumber ? 1 : 0
             }}
             onClick={
-              isAvailableNumber
+              currentValue === currentNumber
+                ? event => {
+                    event.stopPropagation();
+                    const nextGameState = [...gameState];
+                    nextGameState[index] = undefined;
+                    setGameState(nextGameState);
+                    setShowPicker(false);
+                  }
+                : isAvailableNumber
                 ? event => {
                     event.stopPropagation();
                     const nextGameState = [...gameState];
@@ -143,7 +159,10 @@ function Picker({ gameState, setGameState, setShowPicker, index }) {
                     setGameState(nextGameState);
                     setShowPicker(false);
                   }
-                : undefined
+                : event => {
+                    event.stopPropagation();
+                    setShowPicker(false);
+                  }
             }
           >
             {isAvailableNumber && currentNumber}
