@@ -15,7 +15,7 @@ const PICKER_FOREGROUND_COLOR = "white";
 
 const badPuzzle = "8, , , 9, 3, , , , 2, , , 9, , , , , 4, , 7, , 2, 1, , , 9, 6, , 2, , , , , , , 9, , , 6, , , , , , 7, , , 7, , , , 6, , , 5, , 2, 7, , , 8, 4, , 6, , 3, , , , , 5, , , 5, , , , 6, 2, , , 8"
   .split(", ")
-  .map(item => parseInt(item) || undefined) || [...Array(81)];
+  .map(item => parseInt(item) || undefined) && [...Array(81)];
 
 function App() {
   const [gameState, setGameState] = useState(badPuzzle);
