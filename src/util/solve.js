@@ -3,6 +3,10 @@ import { challenge } from "./challenge";
 
 export function solve(puzzle) {
   const start = Date.now();
+  console.log(
+    "START",
+    `\n[${puzzle.map(item => (item === undefined ? 0 : item)).join(", ")}]`
+  );
   const state = puzzle.map((value, index) => {
     return {
       value,
