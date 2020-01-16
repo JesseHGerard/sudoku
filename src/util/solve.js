@@ -69,7 +69,7 @@ export function solve(puzzle) {
     state.length,
     state.map(({ value }) => value).join(", ")
   );
-  console.log("Time", (Date.now() - start) / 1000);
+  console.log(`Time: ${Date.now() - start}ms`);
   return state.map(({ value }) => value);
 }
 
