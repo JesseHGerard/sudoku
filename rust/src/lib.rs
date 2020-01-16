@@ -6,8 +6,6 @@ use std::time;
 use wasm_bindgen::prelude::*;
 
 cfg_if! {
-    // When the `wee_alloc` feature is enabled, use `wee_alloc` as the global
-    // allocator.
     if #[cfg(feature = "wee_alloc")] {
         extern crate wee_alloc;
         #[global_allocator]
@@ -18,9 +16,9 @@ cfg_if! {
 #[wasm_bindgen]
 pub fn solve() -> Vec<u8> {
     let initial_state = [
-        0u8, 9, 8, 0, 6, 1, 0, 0, 0, 0, 0, 3, 0, 5, 0, 8, 9, 6, 7, 0, 6, 0, 3, 8, 0, 0, 2, 0, 7, 0,
-        3, 0, 4, 6, 0, 0, 3, 1, 9, 0, 0, 0, 0, 8, 0, 0, 0, 0, 5, 0, 0, 7, 3, 0, 5, 0, 0, 7, 2, 0,
-        0, 1, 0, 0, 6, 0, 1, 0, 0, 2, 0, 8, 2, 3, 0, 8, 0, 5, 0, 0, 0,
+        0u8, 0, 0, 0, 0, 2, 7, 3, 4, 7, 0, 0, 0, 0, 5, 0, 9, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 1, 0, 0, 0, 4, 0, 6, 0, 2, 0, 0, 1, 3, 0, 0, 8, 0, 0, 0, 9, 4, 0, 9, 0, 0, 0, 0, 7,
+        0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 2, 0, 8, 0, 0, 3, 0, 5, 0, 0,
     ];
 
     let start_time = time::Instant::now();

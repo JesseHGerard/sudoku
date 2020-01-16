@@ -4,6 +4,8 @@ import { jsx } from "@emotion/core";
 import { Fragment, useContext, useState, useEffect } from "react";
 import { solve } from "./util/solve";
 import { challenge } from "./util/challenge";
+
+const wasm = import("rust").then(res => console.log(res));
 /* eslint-enable no-unused-vars */
 
 const CELL_SIZE = 50;
