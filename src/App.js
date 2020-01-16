@@ -6,10 +6,6 @@ import { solve } from "./util/solve";
 import { challenge } from "./util/challenge";
 /* eslint-enable no-unused-vars */
 
-const wasm = import("rust");
-
-console.log("wasm", wasm);
-
 const CELL_SIZE = 50;
 const BOARD_SIZE = CELL_SIZE * 9;
 const GROUP_DIVIDER_COLOR = "black";
