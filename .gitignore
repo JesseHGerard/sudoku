@@ -23,4 +23,7 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-/debug
+./rust/target/debug
+./rust/target/release/.fingerprint
+./rust/target/release/build
+./rust/target/release/deps
