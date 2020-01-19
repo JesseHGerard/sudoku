@@ -11,6 +11,7 @@ wasm-bindgen = "0.2"
 cfg-if = "0.1.10"
 console_error_panic_hook = { version = "0.1.1", optional = true }
 wee_alloc = { version = "0.4.2", optional = true }
+js-sys = "0.3.35"
 
 [lib]
 crate-type = ["cdylib", "rlib"]

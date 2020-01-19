@@ -2,11 +2,6 @@ import { determinePosition } from "./determinePosition";
 import { challenge } from "./challenge";
 
 export function solve(puzzle) {
-  const start = Date.now();
-  console.log(
-    "START",
-    `\n[${puzzle.map(item => (item === undefined ? 0 : item)).join(", ")}]`
-  );
   const state = puzzle.map((value, index) => {
     return {
       value,
@@ -18,7 +13,7 @@ export function solve(puzzle) {
 
   let current = 0;
   let directionForward = true;
-  let loops = 0;
+  let loops = 0; // eslint-disable-line no-unused-vars
 
   try {
     while (current < state.length) {
@@ -64,12 +59,7 @@ export function solve(puzzle) {
     console.warn("Puzzle is not solvable");
     console.warn(error);
   }
-  console.log(
-    `FINISHED in ${loops} loops`,
-    state.length,
-    state.map(({ value }) => value).join(", ")
-  );
-  console.log(`Time: ${Date.now() - start}ms`);
+
   return state.map(({ value }) => value);
 }
 

@@ -1,9 +1,7 @@
-extern crate cfg_if;
-extern crate wasm_bindgen;
-
 use cfg_if::cfg_if;
-use std::time;
+use js_sys::Uint8Array;
 use wasm_bindgen::prelude::*;
+// use std::time;
 
 cfg_if! {
     if #[cfg(feature = "wee_alloc")] {
@@ -13,16 +11,18 @@ cfg_if! {
     }
 }
 
-#[wasm_bindgen]
-pub fn solve() -> Vec<u8> {
-    let initial_state = [
-        0u8, 0, 0, 0, 0, 2, 7, 3, 4, 7, 0, 0, 0, 0, 5, 0, 9, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 1, 0, 0, 0, 4, 0, 6, 0, 2, 0, 0, 1, 3, 0, 0, 8, 0, 0, 0, 9, 4, 0, 9, 0, 0, 0, 0, 7,
-        0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 2, 0, 8, 0, 0, 3, 0, 5, 0, 0,
-    ];
+#[wasm_bindgen(method)]
+pub fn solve(js_initial: Uint8Array) -> Vec<u8> {
+    // let initial_state = [
+    //     0u8, 0, 0, 0, 0, 2, 7, 3, 4, 7, 0, 0, 0, 0, 5, 0, 9, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+    //     0, 0, 1, 0, 0, 0, 4, 0, 6, 0, 2, 0, 0, 1, 3, 0, 0, 8, 0, 0, 0, 9, 4, 0, 9, 0, 0, 0, 0, 7,
+    //     0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 2, 0, 8, 0, 0, 3, 0, 5, 0, 0,
+    // ];
 
-    let start_time = time::Instant::now();
+    // let start_time = time::Instant::now();
 
+    let mut initial_state = [0u8; 81];
+    js_initial.copy_to(&mut initial_state);
     let mut state: Vec<Cell> = Vec::new();
 
     for i in 0..initial_state.len() {
@@ -103,9 +103,9 @@ pub fn solve() -> Vec<u8> {
         });
     }
 
-    let elapsed_time = time::Instant::now() - start_time;
+    // let elapsed_time = time::Instant::now() - start_time;
 
-    println!("answer in {:?} {} loops: {:?}", elapsed_time, loops, answer);
+    println!("answer in {:?} loops: {:?}", loops, answer);
     answer
 }
 
