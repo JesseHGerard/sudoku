@@ -15,15 +15,15 @@ module.exports = function override(config, env) {
     });
   });
 
-  // config.output.publicPath = "./";
-
-  // Add a dedicated loader for WASM
   config.module.rules.push(
+    /* Allow simple loading of WASM modules */
     {
       test: wasmExtensionRegExp,
       include: path.resolve(__dirname, "src"),
       use: [{ loader: require.resolve("wasm-loader"), options: {} }]
     },
+    /* Add loader for worker code,
+    allows modules to be bundled */
     {
       test: workerExtensionRegExp,
       include: path.resolve(__dirname, "src"),

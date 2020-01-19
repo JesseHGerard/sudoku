@@ -1,12 +1,22 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core";
 /* eslint-disable no-unused-vars */
-import { Fragment, useContext, useState, useEffect, useRef } from "react";
+import {
+  Fragment,
+  useContext,
+  useState,
+  useEffect,
+  useRef,
+  useCallback
+} from "react";
+
 import { solve } from "./util/solve";
 import { challenge } from "./util/challenge";
 import { determinePosition } from "./util/determinePosition";
 import { CreateWorker } from "./util/CreateWorker";
 import SolverWorker from "./Solver.worker.js";
+
+import { BoardContainer } from "./components/BoardContainer";
 
 const CELL_SIZE = 50;
 const BOARD_SIZE = CELL_SIZE * 9;
@@ -21,19 +31,30 @@ function App() {
     [...Array(81)].map(() => undefined)
   );
 
+  const handleSolveClick = useCallback(() => {
+    import("rust").then(({ solve: solveWithRust }) => {
+      const start = performance.now();
+      const solution = solveWithRust(gameState);
+      const end = performance.now();
+      setGameState([...solution]);
+      console.log(
+        `rust solution in ${Math.floor((end - start) * 100) / 100}ms`,
+        solution
+      );
+    });
+
+    const solvedCallback = ({ data: { puzzle, time } }) => {
+      console.log(`worker solution in ${time}ms`, puzzle);
+      solverWorker.removeEventListener("message", solvedCallback);
+    };
+    solverWorker.addEventListener("message", solvedCallback);
+    solverWorker.postMessage({ puzzle: gameState });
+  }, [gameState, solverWorker]);
+
   return (
     <Fragment>
-      <div
-        css={{
-          width: BOARD_SIZE,
-          height: BOARD_SIZE,
-          display: "flex",
-          flexWrap: "wrap",
-          padding: CELL_SIZE,
-          userSelect: "none"
-        }}
-      >
-        {[...Array(81)].map((_, index) => (
+      <BoardContainer>
+        {gameState.map((_, index) => (
           <Cell
             key={index}
             index={index}
@@ -41,39 +62,8 @@ function App() {
             setGameState={setGameState}
           />
         ))}
-      </div>
-      <button
-        onClick={() => {
-          import("rust").then(({ solve: solveWithRust }) => {
-            const start = performance.now();
-            const solution = solveWithRust(gameState);
-            const end = performance.now();
-            setGameState([...solution]);
-            console.log(
-              `rust solution in ${Math.floor((end - start) * 100) / 100}ms`,
-              solution
-            );
-          });
-
-          const solvedCallback = ({ data: { puzzle, time } }) => {
-            console.log(`worker solution in ${time}ms`, puzzle);
-            solverWorker.removeEventListener("message", solvedCallback);
-          };
-          solverWorker.addEventListener("message", solvedCallback);
-          solverWorker.postMessage({ puzzle: gameState });
-
-          /* const start = performance.now();
-          const solution = solve(gameState);
-          setGameState(solution);
-          const end = performance.now();
-          console.log(
-            `javascript solution in ${Math.floor((end - start) * 100) / 100}ms`,
-            solution
-          ); */
-        }}
-      >
-        Solve
-      </button>
+      </BoardContainer>
+      <button onClick={handleSolveClick}>Solve</button>
     </Fragment>
   );
 }

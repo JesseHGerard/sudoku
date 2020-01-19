@@ -1,3 +1,18 @@
+/** Finds row, col, and group on game board.
+ * @typedef {number} Index position in array (0-81)
+ 
+ * @param {Index} index position of cell to position
+
+ * @typedef {object} Position
+ * @property {index[]} groupMembers includes Index's of other cells in same Group
+ * @property {Index[]} rowMembers includes Index's of other cells in same Row
+ * @property {Index[]} colMembers includes Index's of other cells in same Col
+ * @property {Index}
+ * @property {number} group group number (0-8)
+ * @property {number} row row number (0-8)
+ * @property {number} col col number (0-8)
+ * @returns {Position}
+ */
 export function determinePosition(index) {
   const col = determineCol(index);
   const row = determineRow(index);
