@@ -27,6 +27,10 @@ const PICKER_FOREGROUND_COLOR = "white";
 
 function App() {
   const { current: solverWorker } = useRef(SolverWorker());
+
+  const [webAssemblyTime, setWebAssemblyTIme] = useState();
+  const [javaScriptTime, setJavaScriptTime] = useState();
+
   const [gameState, setGameState] = useState(
     [...Array(81)].map(() => undefined)
   );
@@ -37,6 +41,7 @@ function App() {
       const solution = solveWithRust(gameState);
       const end = performance.now();
       setGameState([...solution]);
+      setWebAssemblyTIme(Math.floor((end - start) * 100) / 100);
       console.log(
         `rust solution in ${Math.floor((end - start) * 100) / 100}ms`,
         solution
@@ -44,6 +49,7 @@ function App() {
     });
 
     const solvedCallback = ({ data: { puzzle, time } }) => {
+      setJavaScriptTime(time);
       console.log(`worker solution in ${time}ms`, puzzle);
       solverWorker.removeEventListener("message", solvedCallback);
     };
@@ -64,6 +70,8 @@ function App() {
         ))}
       </BoardContainer>
       <button onClick={handleSolveClick}>Solve</button>
+      {webAssemblyTime && <div>Web Assembly - {webAssemblyTime}ms</div>}
+      {javaScriptTime && <div>JavaScript - {javaScriptTime}ms</div>}
     </Fragment>
   );
 }
