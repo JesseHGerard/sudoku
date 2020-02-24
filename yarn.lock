@@ -3013,6 +3013,11 @@ combined-stream@^1.0.6, combined-stream@~1.0.6:
   dependencies:
     delayed-stream "~1.0.0"
 
+comlink@^4.2.0:
+  version "4.2.0"
+  resolved "http://nexus.core.cvent.org:8081/nexus/repository/npm-public/comlink/-/comlink-4.2.0.tgz#be9e968a19d797a44a042cf1eac03775d2ed39fe"
+  integrity sha512-33hF3yYzZicIWLREuvluTGSZkbAXYwRmrA9IYQo0/P+0O45qgvzR0FHX4tRZztObFMTs/RhnN0G0UBNDAZSiCg==
+
 commander@2.17.x:
   version "2.17.1"
   resolved "http://nexus.core.cvent.org:8081/nexus/repository/npm-public/commander/-/commander-2.17.1.tgz#bd77ab7de6de94205ceacc72f1716d29f20a77bf"
@@ -8484,14 +8489,6 @@ raw-body@2.4.0:
     http-errors "1.7.2"
     iconv-lite "0.4.24"
     unpipe "1.0.0"
-
-raw-loader@^4.0.0:
-  version "4.0.0"
-  resolved "http://nexus.core.cvent.org:8081/nexus/repository/npm-public/raw-loader/-/raw-loader-4.0.0.tgz#d639c40fb9d72b5c7f8abc1fb2ddb25b29d3d540"
-  integrity sha512-iINUOYvl1cGEmfoaLjnZXt4bKfT2LJnZZib5N/LLyAphC+Dd11vNP9CNVb38j+SAJpFI1uo8j9frmih53ASy7Q==
-  dependencies:
-    loader-utils "^1.2.3"
-    schema-utils "^2.5.0"
 
 react-app-polyfill@^1.0.5:
   version "1.0.5"

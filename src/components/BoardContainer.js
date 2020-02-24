@@ -1,6 +1,6 @@
 /** @jsx jsx */
 import { jsx } from "@emotion/core";
-import { tokens } from "../style/tokens";
+import tokens from "../style/tokens";
 
 const boardContainerStyle = {
   width: tokens.boardSize,

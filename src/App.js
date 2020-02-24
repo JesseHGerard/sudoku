@@ -9,53 +9,103 @@ import {
   useRef,
   useCallback
 } from "react";
+import { wrap as wrapWorker } from "comlink";
 
 import { solve } from "./util/solve";
 import { challenge } from "./util/challenge";
 import { determinePosition } from "./util/determinePosition";
-import { CreateWorker } from "./util/CreateWorker";
 import SolverWorker from "./Solver.worker.js";
 
 import { BoardContainer } from "./components/BoardContainer";
 
-const CELL_SIZE = 50;
-const BOARD_SIZE = CELL_SIZE * 9;
-const GROUP_DIVIDER_COLOR = "black";
-const CELL_DIVIDER_COLOR = "grey";
-const PICKER_BACKGROUND_COLOR = "black";
-const PICKER_FOREGROUND_COLOR = "white";
+import {
+  CELL_SIZE,
+  BOARD_SIZE,
+  GROUP_DIVIDER_COLOR,
+  CELL_DIVIDER_COLOR,
+  PICKER_BACKGROUND_COLOR,
+  PICKER_FOREGROUND_COLOR,
+  FRAMES_PER_SECOND,
+  MAX_ANIMATION_RUNTIME
+} from "./style/tokens";
 
 function App() {
   const { current: solverWorker } = useRef(SolverWorker());
+  const { current: jsSolver } = useRef(wrapWorker(SolverWorker()));
 
-  const [webAssemblyTime, setWebAssemblyTIme] = useState();
+  const [webAssemblyTime, setWebAssemblyTime] = useState();
   const [javaScriptTime, setJavaScriptTime] = useState();
+  const [solved, setSolved] = useState(false);
+  const [loopsToSolve, setLoopsToSolve] = useState();
+  const [animationFrames, setAnimationFrames] = useState();
+  const [animating, setAnimating] = useState(false);
+  const frame = useRef(0);
 
   const [gameState, setGameState] = useState(
     [...Array(81)].map(() => undefined)
   );
+  const [userPuzzle, setUserPuzzle] = useState();
 
-  const handleSolveClick = useCallback(() => {
+  const handlePlaybackClick = useCallback(async () => {
+    const solution = await jsSolver({
+      puzzle: userPuzzle,
+      animate: {
+        loopsToSolve,
+        loopsPerFrame: Math.ceil(
+          loopsToSolve / (FRAMES_PER_SECOND * MAX_ANIMATION_RUNTIME)
+        )
+      }
+    });
+    setAnimationFrames(solution.animationFrames);
+    setAnimating(true);
+  }, [jsSolver, loopsToSolve, userPuzzle]);
+
+  useEffect(() => {
+    if (animating) {
+      if (Array.isArray(animationFrames) && animationFrames.length) {
+        const intervalId = setInterval(() => {
+          requestAnimationFrame(() => {
+            if (!animating) {
+              return clearInterval(intervalId);
+            }
+            setGameState(animationFrames[frame.current]);
+            if (frame.current < animationFrames.length - 1) {
+              frame.current++;
+            } else {
+              clearInterval(intervalId);
+              setAnimating(false);
+              frame.current = 0;
+            }
+          });
+        }, 1000 / FRAMES_PER_SECOND);
+      } else {
+        setAnimating(false);
+      }
+    }
+  }, [animating, animationFrames]);
+
+  const handleSolveClick = useCallback(async () => {
+    setUserPuzzle(gameState);
     import("rust").then(({ solve: solveWithRust }) => {
       const start = performance.now();
       const solution = solveWithRust(gameState);
       const end = performance.now();
       setGameState([...solution]);
-      setWebAssemblyTIme(Math.floor((end - start) * 100) / 100);
-      console.log(
-        `rust solution in ${Math.floor((end - start) * 100) / 100}ms`,
-        solution
-      );
+      setWebAssemblyTime(Math.floor((end - start) * 100) / 100);
     });
 
-    const solvedCallback = ({ data: { puzzle, time } }) => {
-      setJavaScriptTime(time);
-      console.log(`worker solution in ${time}ms`, puzzle);
-      solverWorker.removeEventListener("message", solvedCallback);
-    };
-    solverWorker.addEventListener("message", solvedCallback);
-    solverWorker.postMessage({ puzzle: gameState });
-  }, [gameState, solverWorker]);
+    const jsSolution = await jsSolver({
+      puzzle: gameState,
+      ...(loopsToSolve ? { animate: { loopsToSolve } } : {})
+    });
+
+    const { time, loops, animationFrames } = jsSolution;
+
+    setJavaScriptTime(time);
+    setSolved(true);
+    setLoopsToSolve(loops);
+    setAnimationFrames(animationFrames);
+  }, [gameState, jsSolver, loopsToSolve]);
 
   return (
     <Fragment>
@@ -69,7 +119,10 @@ function App() {
           />
         ))}
       </BoardContainer>
-      <button onClick={handleSolveClick}>Solve</button>
+      {!solved && <button onClick={handleSolveClick}>Solve</button>}
+      {solved && (
+        <button onClick={handlePlaybackClick}>Playback solution</button>
+      )}
       {webAssemblyTime && <div>Web Assembly - {webAssemblyTime}ms</div>}
       {javaScriptTime && <div>JavaScript - {javaScriptTime}ms</div>}
     </Fragment>

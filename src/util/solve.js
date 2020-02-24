@@ -1,7 +1,7 @@
 import { determinePosition } from "./determinePosition";
 import { challenge } from "./challenge";
 
-export function solve(puzzle) {
+export function solve(puzzle, animate) {
   const state = puzzle.map((value, index) => {
     return {
       value,
@@ -13,11 +13,16 @@ export function solve(puzzle) {
 
   let current = 0;
   let directionForward = true;
-  let loops = 0; // eslint-disable-line no-unused-vars
+  let loops = 0;
+  const animationFrames = [];
 
   try {
     while (current < state.length) {
       loops++;
+
+      if (animate && loops % animate.loopsPerFrame === 0) {
+        animationFrames.push(state.map(({ value }) => value));
+      }
 
       if (isConstant(state[current])) {
         if (directionForward) {
@@ -55,12 +60,21 @@ export function solve(puzzle) {
         }
       }
     }
+
+    if (animationFrames.length) {
+      /* add final frame to animation */
+      animationFrames.push(state.map(({ value }) => value));
+    }
   } catch (error) {
     console.warn("Puzzle is not solvable");
     console.warn(error);
   }
 
-  return state.map(({ value }) => value);
+  return {
+    answer: state.map(({ value }) => value),
+    loops,
+    ...(animationFrames.length > 0 ? { animationFrames } : {})
+  };
 }
 
 function generateOptions(index, state) {

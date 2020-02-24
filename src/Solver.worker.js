@@ -1,12 +1,17 @@
+import { expose } from "comlink";
 import { solve } from "./util/solve";
 
-onmessage = function({ data: { puzzle } }) {
+function solver({ puzzle, animate }) {
   const start = performance.now();
 
-  const answer = solve(puzzle);
+  const answer = solve(puzzle, animate);
+
   const end = performance.now();
-  this.postMessage({
-    puzzle: answer,
+
+  return {
+    ...answer,
     time: Math.floor((end - start) * 100) / 100
-  });
-};
+  };
+}
+
+expose(solver);

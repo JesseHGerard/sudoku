@@ -1,7 +1,6 @@
 use cfg_if::cfg_if;
 use js_sys::Uint8Array;
 use wasm_bindgen::prelude::*;
-// use std::time;
 
 cfg_if! {
     if #[cfg(feature = "wee_alloc")] {
@@ -13,13 +12,6 @@ cfg_if! {
 
 #[wasm_bindgen(method)]
 pub fn solve(js_initial: Uint8Array) -> Vec<u8> {
-    // let initial_state = [
-    //     0u8, 0, 0, 0, 0, 2, 7, 3, 4, 7, 0, 0, 0, 0, 5, 0, 9, 0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    //     0, 0, 1, 0, 0, 0, 4, 0, 6, 0, 2, 0, 0, 1, 3, 0, 0, 8, 0, 0, 0, 9, 4, 0, 9, 0, 0, 0, 0, 7,
-    //     0, 0, 0, 0, 0, 0, 0, 8, 0, 0, 0, 2, 0, 8, 0, 0, 3, 0, 5, 0, 0,
-    // ];
-
-    // let start_time = time::Instant::now();
 
     let mut initial_state = [0u8; 81];
     js_initial.copy_to(&mut initial_state);
@@ -36,13 +28,7 @@ pub fn solve(js_initial: Uint8Array) -> Vec<u8> {
     while current < state.len() {
         loops = loops + 1;
 
-        // println!(
-        //     "current: {}, value: {:?} direction: {:?}, loop: {}",
-        //     current, state[current].value, direction, loops
-        // );
-
         if state[current].constant {
-            // println!("  constant");
             match &direction {
                 Direction::Forward => current = current + 1,
                 Direction::Reverse => current = current - 1,
@@ -55,22 +41,18 @@ pub fn solve(js_initial: Uint8Array) -> Vec<u8> {
                 Some(value) => {
                     if state[current].check(&state) {
                         current = current + 1;
-                    // println!("  check passed, move forward");
                     } else {
                         if value < 9 {
                             state[current].value = Some(value + 1);
-                        // println!("  check failed, increment value");
                         } else {
                             state[current].value = None;
                             direction = Direction::Reverse;
                             current = current - 1;
-                            // println!("  check failed, go back");
                         }
                     }
                 }
                 None => {
                     state[current].value = Some(1u8);
-                    // println!("  no value, given value of 1");
                 }
             },
             Direction::Reverse => match state[current].value {
@@ -78,17 +60,14 @@ pub fn solve(js_initial: Uint8Array) -> Vec<u8> {
                     if value < 9 {
                         state[current].value = Some(value + 1);
                         direction = Direction::Forward;
-                    // println!("  increment value");
                     } else {
                         state[current].value = None;
-                        current = current - 1;
-                        // println!("  out of options, go back");
+                        current = current - 1;;
                     }
                 }
                 None => {
                     state[current].value = Some(1u8);
                     direction = Direction::Forward;
-                    // println!("  no value, given value of 1 (reverse)");
                 }
             },
         }
@@ -102,10 +81,6 @@ pub fn solve(js_initial: Uint8Array) -> Vec<u8> {
             None => 0u8,
         });
     }
-
-    // let elapsed_time = time::Instant::now() - start_time;
-
-    println!("answer in {:?} loops: {:?}", loops, answer);
     answer
 }
 
