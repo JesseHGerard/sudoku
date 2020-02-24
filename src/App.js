@@ -64,10 +64,10 @@ function App() {
     if (animating) {
       if (Array.isArray(animationFrames) && animationFrames.length) {
         const intervalId = setInterval(() => {
+          if (!animating) {
+            return clearInterval(intervalId);
+          }
           requestAnimationFrame(() => {
-            if (!animating) {
-              return clearInterval(intervalId);
-            }
             setGameState(animationFrames[frame.current]);
             if (frame.current < animationFrames.length - 1) {
               frame.current++;
