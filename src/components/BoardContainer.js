@@ -8,7 +8,8 @@ const boardContainerStyle = {
   padding: tokens.cellSize,
   display: "flex",
   flexWrap: "wrap",
-  userSelect: "none"
+  userSelect: "none",
+  flexShrink: 0,
 };
 
 /** Holds Cells */

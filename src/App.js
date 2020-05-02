@@ -1,36 +1,27 @@
 /** @jsx jsx */
-import { jsx } from "@emotion/core";
-/* eslint-disable no-unused-vars */
-import {
-  Fragment,
-  useContext,
-  useState,
-  useEffect,
-  useRef,
-  useCallback
-} from "react";
+import { jsx, Global } from "@emotion/core";
+import { Fragment, useState, useEffect, useRef, useCallback } from "react";
 import { wrap as wrapWorker } from "comlink";
 
-import { solve } from "./util/solve";
 import { challenge } from "./util/challenge";
 import { determinePosition } from "./util/determinePosition";
 import SolverWorker from "./Solver.worker.js";
 
 import { BoardContainer } from "./components/BoardContainer";
+import { Button } from "./components/Button";
+import "normalize.css";
 
 import {
   CELL_SIZE,
-  BOARD_SIZE,
   GROUP_DIVIDER_COLOR,
   CELL_DIVIDER_COLOR,
   PICKER_BACKGROUND_COLOR,
   PICKER_FOREGROUND_COLOR,
   FRAMES_PER_SECOND,
-  MAX_ANIMATION_RUNTIME
+  MAX_ANIMATION_RUNTIME,
 } from "./style/tokens";
 
 function App() {
-  const { current: solverWorker } = useRef(SolverWorker());
   const { current: jsSolver } = useRef(wrapWorker(SolverWorker()));
 
   const [webAssemblyTime, setWebAssemblyTime] = useState();
@@ -53,8 +44,8 @@ function App() {
         loopsToSolve,
         loopsPerFrame: Math.ceil(
           loopsToSolve / (FRAMES_PER_SECOND * MAX_ANIMATION_RUNTIME)
-        )
-      }
+        ),
+      },
     });
     setAnimationFrames(solution.animationFrames);
     setAnimating(true);
@@ -86,17 +77,20 @@ function App() {
 
   const handleSolveClick = useCallback(async () => {
     setUserPuzzle(gameState);
-    import("rust").then(({ solve: solveWithRust }) => {
-      const start = performance.now();
-      const solution = solveWithRust(gameState);
-      const end = performance.now();
-      setGameState([...solution]);
-      setWebAssemblyTime(Math.floor((end - start) * 100) / 100);
-    });
+    import("rust").then(
+      ({ solve: solveWithRust }) => {
+        const start = performance.now();
+        const solution = solveWithRust(gameState);
+        const end = performance.now();
+        setGameState([...solution]);
+        setWebAssemblyTime(Math.floor((end - start) * 100) / 100);
+      },
+      [gameState]
+    );
 
     const jsSolution = await jsSolver({
       puzzle: gameState,
-      ...(loopsToSolve ? { animate: { loopsToSolve } } : {})
+      ...(loopsToSolve ? { animate: { loopsToSolve } } : {}),
     });
 
     const { time, loops, animationFrames } = jsSolution;
@@ -108,10 +102,153 @@ function App() {
   }, [gameState, jsSolver, loopsToSolve]);
 
   return (
-    <Fragment>
+    <div
+      css={{
+        width: "100%",
+        display: "flex",
+        flexWrap: "wrap",
+      }}
+    >
+      <Global
+        styles={{
+          html: {
+            fontFamily: `-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"`,
+          },
+          a: {
+            position: "relative",
+            color: "black",
+            textDecoration: "none",
+            textDecorationColor: "black",
+            overflow: "visible",
+            "&:-webkit-any-link": {
+              color: "black",
+            },
+            "&:focus": {
+              outline: `2px solid magenta`,
+              boxShadow: "none",
+            },
+            "&:hover": {
+              color: "magenta",
+            },
+            "&::after": {
+              content: '""',
+              position: "absolute",
+              color: "black",
+              top: 0,
+              bottom: -2,
+              left: -1,
+              right: -1,
+              borderBottom: "1px solid magenta",
+              pointerEvents: "none",
+            },
+          },
+        }}
+      />
+      <div
+        css={{
+          minWidth: 400,
+          padding: CELL_SIZE,
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "space-between",
+          lineHeight: 2,
+        }}
+      >
+        <div>
+          <div css={{ fontSize: 48, fontWeight: 600, lineHeight: 1 }}>
+            <div>Sudoku</div>
+            <div>Solver</div>
+          </div>
+          {!solved && (
+            <Fragment>
+              <Button autoFocus onClick={handleSolveClick}>
+                Solve
+              </Button>
+              <div>Instructions:</div>
+              <div>Click a cell in the game board to select a number.</div>
+              <div>
+                If you need a puzzle to solve, try{" "}
+                <a
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  href="https://www.nytimes.com/puzzles/sudoku/hard"
+                >
+                  NYT
+                </a>
+              </div>
+              <div>Then click "solve"</div>
+            </Fragment>
+          )}
+          {solved && (
+            <div>
+              <Button onClick={handlePlaybackClick} disabled={animating}>
+                {animating ? (
+                  <span
+                    css={{
+                      width: "100%",
+                      textAlign: "center",
+                      overflow: "hidden",
+                      "&::before": {
+                        content: '""',
+                        position: "absolute",
+                        backgroundColor: "cyan",
+                        opacity: 0.2,
+                        top: 0,
+                        bottom: 0,
+                        left: 0,
+                        right:
+                          100 - (frame.current / animationFrames.length) * 100,
+                      },
+                    }}
+                  >
+                    {`${
+                      Math.round(
+                        ((frame.current / animationFrames.length) * 100) / 5
+                      ) * 5
+                    }%`}
+                  </span>
+                ) : (
+                  "Playback Solution"
+                )}
+              </Button>
+              {!animating && (
+                <Button
+                  padStart
+                  onClick={() => {
+                    setAnimating(false);
+                    frame.current = 0;
+                    setWebAssemblyTime();
+                    setJavaScriptTime();
+                    setSolved(false);
+                    setLoopsToSolve();
+                    setAnimationFrames();
+                    setGameState([...Array(81)].map(() => undefined));
+                    setUserPuzzle([...Array(81)].map(() => undefined));
+                  }}
+                >
+                  Reset
+                </Button>
+              )}
+            </div>
+          )}
+          {webAssemblyTime && <div>Web Assembly - {webAssemblyTime}ms</div>}
+          {javaScriptTime && <div>JavaScript - {javaScriptTime}ms</div>}
+        </div>
+        <div>
+          A web assembly demonstration by{" "}
+          <a
+            target="_blank"
+            rel="noopener noreferrer"
+            href="http://jessegerard.com/"
+          >
+            Jesse Gerard
+          </a>
+        </div>
+      </div>
       <BoardContainer>
         {gameState.map((_, index) => (
           <Cell
+            solved={solved}
             key={index}
             index={index}
             gameState={gameState}
@@ -119,19 +256,13 @@ function App() {
           />
         ))}
       </BoardContainer>
-      {!solved && <button onClick={handleSolveClick}>Solve</button>}
-      {solved && (
-        <button onClick={handlePlaybackClick}>Playback solution</button>
-      )}
-      {webAssemblyTime && <div>Web Assembly - {webAssemblyTime}ms</div>}
-      {javaScriptTime && <div>JavaScript - {javaScriptTime}ms</div>}
-    </Fragment>
+    </div>
   );
 }
 
 export default App;
 
-function Cell({ index, gameState, setGameState }) {
+function Cell({ index, gameState, setGameState, solved }) {
   const [showPicker, setShowPicker] = useState(false);
 
   return (
@@ -148,13 +279,14 @@ function Cell({ index, gameState, setGameState }) {
         borderWidth: 0,
         borderStyle: "solid",
         outline: "none",
-        ...borderStyle(index)
+        ...(solved && { pointerEvents: "none" }),
+        ...borderStyle(index),
       }}
       tabIndex={0}
       onClick={() => setShowPicker(true)}
     >
       {gameState[index]}
-      {showPicker && (
+      {showPicker && !solved && (
         <Picker
           gameState={gameState}
           setGameState={setGameState}
@@ -175,7 +307,7 @@ function Picker({ gameState, setGameState, setShowPicker, index }) {
         value,
         constant: !!value,
         index,
-        ...determinePosition(index)
+        ...determinePosition(index),
       };
     });
 
@@ -203,7 +335,7 @@ function Picker({ gameState, setGameState, setShowPicker, index }) {
         transform: "translate(-50%, -50%)",
         zIndex: 1,
         display: "flex",
-        flexWrap: "wrap"
+        flexWrap: "wrap",
       }}
     >
       {[...Array(9)].map((_, numberIndex) => {
@@ -223,11 +355,11 @@ function Picker({ gameState, setGameState, setShowPicker, index }) {
               borderRadius: "100%",
               borderColor: PICKER_FOREGROUND_COLOR,
               borderStyle: "solid",
-              borderWidth: currentValue === currentNumber ? 1 : 0
+              borderWidth: currentValue === currentNumber ? 1 : 0,
             }}
             onClick={
               currentValue === currentNumber
-                ? event => {
+                ? (event) => {
                     event.stopPropagation();
                     const nextGameState = [...gameState];
                     nextGameState[index] = undefined;
@@ -235,14 +367,14 @@ function Picker({ gameState, setGameState, setShowPicker, index }) {
                     setShowPicker(false);
                   }
                 : isAvailableNumber
-                ? event => {
+                ? (event) => {
                     event.stopPropagation();
                     const nextGameState = [...gameState];
                     nextGameState[index] = currentNumber;
                     setGameState(nextGameState);
                     setShowPicker(false);
                   }
-                : event => {
+                : (event) => {
                     event.stopPropagation();
                     setShowPicker(false);
                   }
@@ -259,7 +391,7 @@ function Picker({ gameState, setGameState, setShowPicker, index }) {
 function borderStyle(index) {
   return {
     ...borderTop(index),
-    ...borderLeft(index)
+    ...borderLeft(index),
   };
 }
 
@@ -271,12 +403,12 @@ function borderTop(index) {
     /* group top */
     return {
       borderTopWidth: 2,
-      borderTopColor: GROUP_DIVIDER_COLOR
+      borderTopColor: GROUP_DIVIDER_COLOR,
     };
   } else {
     return {
       borderTopWidth: 1,
-      borderTopColor: CELL_DIVIDER_COLOR
+      borderTopColor: CELL_DIVIDER_COLOR,
     };
   }
 }
@@ -290,12 +422,12 @@ function borderLeft(index) {
     /* group left */
     return {
       borderLeftWidth: 2,
-      borderLeftColor: GROUP_DIVIDER_COLOR
+      borderLeftColor: GROUP_DIVIDER_COLOR,
     };
   } else {
     return {
       borderLeftWidth: 1,
-      borderLeftColor: CELL_DIVIDER_COLOR
+      borderLeftColor: CELL_DIVIDER_COLOR,
     };
   }
 }

@@ -1,17 +1,18 @@
 {
-  "name": "wasm-test",
-  "version": "0.1.0",
-  "private": true,
+  "name": "sudoku-solver",
+  "description": "A web assembly demonstration",
+  "version": "0.2.0",
   "dependencies": {
     "@emotion/core": "^10.0.27",
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.3.2",
     "@testing-library/user-event": "^7.1.2",
     "comlink": "^4.2.0",
+    "normalize.css": "^8.0.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
-    "react-scripts": "3.3.0",
-    "rust": "file:/Users/jgerard/projects/sudoku/rust/pkg"
+    "react-scripts": "3.4.1",
+    "rust": "file:rust/pkg"
   },
   "scripts": {
     "start": "react-app-rewired start",
@@ -24,6 +25,13 @@
   "eslintConfig": {
     "extends": "react-app"
   },
+  "devDependencies": {
+    "gh-pages": "^2.2.0",
+    "react-app-rewired": "^2.1.5",
+    "wasm-loader": "^1.3.0",
+    "worker-loader": "^2.0.0"
+  },
+  "homepage": "http://jessehgerard.github.io/sudoku",
   "browserslist": {
     "production": [
       ">0.2%",
@@ -35,12 +43,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "gh-pages": "^2.2.0",
-    "react-app-rewired": "^2.1.5",
-    "wasm-loader": "^1.3.0",
-    "worker-loader": "^2.0.0"
-  },
-  "homepage": "http://jessehgerard.github.io/sudoku"
+  }
 }
