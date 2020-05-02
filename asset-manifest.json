@@ -1,23 +1,26 @@
 {
   "files": {
-    "main.js": "/sudoku/static/js/main.fb1407ca.chunk.js",
-    "main.js.map": "/sudoku/static/js/main.fb1407ca.chunk.js.map",
-    "runtime-main.js": "/sudoku/static/js/runtime-main.ab5f7da5.js",
-    "runtime-main.js.map": "/sudoku/static/js/runtime-main.ab5f7da5.js.map",
-    "static/js/2.826d1949.chunk.js": "/sudoku/static/js/2.826d1949.chunk.js",
-    "static/js/2.826d1949.chunk.js.map": "/sudoku/static/js/2.826d1949.chunk.js.map",
-    "static/js/3.6579cdd4.chunk.js": "/sudoku/static/js/3.6579cdd4.chunk.js",
-    "be66c571ecb032f1f453.module.wasm": "/sudoku/be66c571ecb032f1f453.module.wasm",
-    "static/js/3.6579cdd4.chunk.js.map": "/sudoku/static/js/3.6579cdd4.chunk.js.map",
-    "6c28e13929256ca66819.worker.js.map": "/sudoku/6c28e13929256ca66819.worker.js.map",
+    "main.js": "/sudoku/static/js/main.9e4a9e9f.chunk.js",
+    "main.js.map": "/sudoku/static/js/main.9e4a9e9f.chunk.js.map",
+    "runtime-main.js": "/sudoku/static/js/runtime-main.c77fa933.js",
+    "runtime-main.js.map": "/sudoku/static/js/runtime-main.c77fa933.js.map",
+    "static/css/2.5849c712.chunk.css": "/sudoku/static/css/2.5849c712.chunk.css",
+    "static/js/2.a86ba04e.chunk.js": "/sudoku/static/js/2.a86ba04e.chunk.js",
+    "static/js/2.a86ba04e.chunk.js.map": "/sudoku/static/js/2.a86ba04e.chunk.js.map",
+    "static/js/3.a961f93a.chunk.js": "/sudoku/static/js/3.a961f93a.chunk.js",
+    "fd7479a1436d884580bd.module.wasm": "/sudoku/fd7479a1436d884580bd.module.wasm",
+    "static/js/3.a961f93a.chunk.js.map": "/sudoku/static/js/3.a961f93a.chunk.js.map",
+    "20dfb63641127f3895d7.worker.js.map": "/sudoku/20dfb63641127f3895d7.worker.js.map",
     "index.html": "/sudoku/index.html",
-    "precache-manifest.65411d8aa116708a04e3c2e68235619a.js": "/sudoku/precache-manifest.65411d8aa116708a04e3c2e68235619a.js",
+    "precache-manifest.e3914f4cf33bbcaa147e8471b67c8add.js": "/sudoku/precache-manifest.e3914f4cf33bbcaa147e8471b67c8add.js",
     "service-worker.js": "/sudoku/service-worker.js",
-    "static/js/2.826d1949.chunk.js.LICENSE": "/sudoku/static/js/2.826d1949.chunk.js.LICENSE"
+    "static/css/2.5849c712.chunk.css.map": "/sudoku/static/css/2.5849c712.chunk.css.map",
+    "static/js/2.a86ba04e.chunk.js.LICENSE.txt": "/sudoku/static/js/2.a86ba04e.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
-    "static/js/runtime-main.ab5f7da5.js",
-    "static/js/2.826d1949.chunk.js",
-    "static/js/main.fb1407ca.chunk.js"
+    "static/js/runtime-main.c77fa933.js",
+    "static/css/2.5849c712.chunk.css",
+    "static/js/2.a86ba04e.chunk.js",
+    "static/js/main.9e4a9e9f.chunk.js"
   ]
 }
